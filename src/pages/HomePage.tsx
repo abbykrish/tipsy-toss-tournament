@@ -35,7 +35,11 @@ export function HomePage() {
       <section id="signup" className="signup card">
         <div className="signup-intro">
           <h2>Sign up</h2>
-          <p>Got a partner? Sign up as a team. Flying solo? Sign up as a free agent and you'll get paired with someone.</p>
+          <p>
+            Got a partner? Sign up as a team.
+            <br />
+            Flying solo? Sign up as a free agent and you'll get paired with someone.
+          </p>
         </div>
         <div className="signup-details">
           <ul className="checklist">
