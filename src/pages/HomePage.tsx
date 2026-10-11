@@ -41,7 +41,10 @@ export function HomePage() {
           <ul className="checklist">
             <li>Teams of 2</li>
             <li>One signup per phone number</li>
-            <li>Found a partner after signing up solo? Have them sign up the team with your number.</li>
+            <li>
+              Found a partner after signing up solo? Have them sign up the team with your number. It'll auto-add you to
+              their team.
+            </li>
           </ul>
           <p className="fine-print">
             Phone numbers are only used to avoid duplicate signups and reach you on game day. They're never shown on the
