@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tipsy-toss",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  // abbykrishnan.com is on Cloudflare, so deploy creates the DNS record + cert.
+  "routes": [{ "pattern": "tipsytoss.abbykrishnan.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    // Serve the React app for any non-API path so /live and /admin deep-link.
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tipsy-toss",
+      "database_id": "0393dacc-97b2-40fd-a8ea-894733888161",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Per-IP limits on the public signup form and the admin login.
+  "ratelimits": [
+    { "name": "SIGNUP_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } },
+    { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
+  ],
+  "observability": { "enabled": true }
+}
