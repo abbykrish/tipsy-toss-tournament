@@ -18,7 +18,6 @@ export function HomePage() {
         <p className="hero-meta">
           <span>Sat, Oct 17</span>
           <span>Starts at 3pm</span>
-          <span>Games to 11 this year</span>
           {hasStarted && (
             <Link href="/live" className="text-link">
               Live bracket →

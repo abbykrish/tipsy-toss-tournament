@@ -380,8 +380,7 @@ section {
 
 .hero-scene {
   width: 100%;
-  max-width: 860px;
-  margin: 4px auto 0;
+  margin: 4px 0 0;
   border: 3px solid var(--ink);
   border-radius: 24px;
   overflow: hidden;
@@ -393,7 +392,13 @@ section {
 .toss-scene {
   display: block;
   width: 100%;
-  height: auto;
+  height: clamp(160px, 19vw, 220px);
+}
+
+@media (max-width: 640px) {
+  .toss-scene {
+    height: auto;
+  }
 }
 
 .cloud {
@@ -403,6 +408,10 @@ section {
 .cloud-b {
   animation-duration: 52s;
   animation-direction: alternate-reverse;
+}
+
+.cloud-c {
+  animation-duration: 46s;
 }
 
 @keyframes drift {
@@ -1636,7 +1645,6 @@ a:focus-visible {
 
   .hero-scene {
     border-radius: 16px;
-    margin: 0 -4px;
   }
 
   .seed-list li {

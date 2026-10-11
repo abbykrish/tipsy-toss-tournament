@@ -11,9 +11,10 @@ const BOTTLE_REST = { x: RIGHT_POLE_X, y: POLE_TOP - BOTTLE_HALF_H };
 const FRISBEE_RX = 30;
 const FRISBEE_RY = 8;
 
-// Cropped to a wide strip so the hero stays short; phones get a tighter crop
-// around the poles so the bottles aren't tiny.
-const VIEW_WIDE = "-150 30 1260 320";
+// On wider screens the scene fills a short, full-width strip: the viewBox is
+// extra wide and "slice" trims the sides to fit, keeping the poles centered.
+// Phones get a tighter crop around the poles so the bottles aren't tiny.
+const VIEW_WIDE = "-350 30 1640 320";
 const VIEW_NARROW = "110 30 880 320";
 
 // Timeline (seconds).
@@ -220,7 +221,9 @@ export function TossScene() {
   }, []);
 
   return (
-    <svg className="toss-scene" viewBox={narrow ? VIEW_NARROW : VIEW_WIDE} role="img" aria-label="A frisbee flies across the lawn and knocks a bottle off its pole">
+    <svg className="toss-scene" viewBox={narrow ? VIEW_NARROW : VIEW_WIDE}
+      preserveAspectRatio={narrow ? "xMidYMid meet" : "xMidYMid slice"}
+      role="img" aria-label="A frisbee flies across the lawn and knocks a bottle off its pole">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#7cc8f2" />
@@ -246,13 +249,21 @@ export function TossScene() {
         </g>
       </defs>
 
-      <rect x="-200" width="1400" height="400" fill="url(#sky)" />
-      <circle cx="610" cy="66" r="62" fill="url(#sun)" />
-      <circle cx="610" cy="66" r="32" fill="#ffd45c" />
+      <rect x="-400" width="1800" height="400" fill="url(#sky)" />
+      <circle cx="610" cy="80" r="62" fill="url(#sun)" />
+      <circle cx="610" cy="80" r="30" fill="#ffd45c" />
       <g className="cloud cloud-a" fill="#fff" opacity="0.9">
         <ellipse cx="160" cy="80" rx="46" ry="18" />
         <ellipse cx="196" cy="70" rx="34" ry="22" />
         <ellipse cx="226" cy="84" rx="38" ry="15" />
+      </g>
+      <g className="cloud cloud-c" fill="#fff" opacity="0.8">
+        <ellipse cx="-220" cy="92" rx="40" ry="14" />
+        <ellipse cx="-190" cy="82" rx="30" ry="18" />
+        <ellipse cx="-160" cy="94" rx="34" ry="12" />
+        <ellipse cx="1110" cy="70" rx="38" ry="14" />
+        <ellipse cx="1140" cy="60" rx="28" ry="17" />
+        <ellipse cx="1168" cy="72" rx="32" ry="12" />
       </g>
       <g className="cloud cloud-b" fill="#fff" opacity="0.75">
         <ellipse cx="380" cy="64" rx="36" ry="13" />
@@ -260,13 +271,15 @@ export function TossScene() {
         <ellipse cx="432" cy="66" rx="30" ry="11" />
       </g>
 
-      <path d="M-200 292 Q -50 262 110 290 T 430 284 T 750 280 T 1070 274 T 1400 280 V 330 H -200 Z" fill="#9ed37f" />
-      <path d="M-200 318 Q 40 308 280 316 T 760 314 T 1240 316 V 400 H -200 Z" fill="url(#grass)" />
+      <path d="M-400 280 Q -250 300 -100 286 Q 50 262 110 290 T 430 284 T 750 280 T 1070 274 T 1400 280 V 330 H -400 Z" fill="#9ed37f" />
+      <path d="M-400 316 Q -200 308 40 318 T 520 314 T 1000 316 T 1480 314 V 400 H -400 Z" fill="url(#grass)" />
       <g stroke="#2a6e33" strokeWidth="2" strokeLinecap="round" opacity="0.5">
+        <path d="M-300 340 l-4 -10 M-296 340 l2 -12 M-292 340 l6 -9" />
         <path d="M-90 342 l-4 -10 M-86 342 l2 -12 M-82 342 l6 -9" />
         <path d="M250 346 l-4 -10 M254 346 l2 -12 M258 346 l6 -9" />
         <path d="M560 340 l-4 -10 M564 340 l2 -12 M568 340 l6 -9" />
         <path d="M1010 344 l-4 -10 M1014 344 l2 -12 M1018 344 l6 -9" />
+        <path d="M1220 340 l-4 -10 M1224 340 l2 -12 M1228 340 l6 -9" />
       </g>
 
       {/* Thrower's pole */}
