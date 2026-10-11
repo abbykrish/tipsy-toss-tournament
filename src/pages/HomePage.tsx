@@ -51,8 +51,7 @@ export function HomePage() {
             </li>
           </ul>
           <p className="fine-print">
-            Phone numbers are only used to avoid duplicate signups and reach you on game day. They're never shown on the
-            site.
+            Phone numbers are only used to avoid duplicate signups. They're never shown on the site.
           </p>
         </div>
         <SignupForm submit={api.signup} onDone={refresh} />
