@@ -651,6 +651,12 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+.name-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
 .player-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1641,6 +1647,10 @@ a:focus-visible {
 
   .player-row {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dice-label {
+    display: none;
   }
 
   .hero-scene {

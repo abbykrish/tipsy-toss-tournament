@@ -54,7 +54,7 @@ export function HomePage() {
             Phone numbers are only used to avoid duplicate signups. They're never shown on the site.
           </p>
         </div>
-        <SignupForm submit={api.signup} onDone={refresh} />
+        <SignupForm submit={api.signup} onDone={refresh} takenNames={state?.teams.map((t) => t.name)} />
       </section>
 
       <section className="whos-in">
