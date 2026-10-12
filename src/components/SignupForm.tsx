@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { uniqueFunnyTeamName } from "../../shared/teamNames";
 import type { SignupRequest } from "../../shared/types";
 
 type Kind = SignupRequest["kind"];
@@ -8,11 +9,13 @@ interface Props {
   onDone?: () => void;
   /** Admin walk-up form: skip the marketing copy. */
   compact?: boolean;
+  /** Existing team names, so the random name button doesn't suggest one that's taken. */
+  takenNames?: string[];
 }
 
 const blank = { name: "", phone: "" };
 
-export function SignupForm({ submit, onDone, compact }: Props) {
+export function SignupForm({ submit, onDone, compact, takenNames = [] }: Props) {
   const [kind, setKind] = useState<Kind>("team");
   const [teamName, setTeamName] = useState("");
   const [players, setPlayers] = useState([blank, blank]);
@@ -89,13 +92,26 @@ export function SignupForm({ submit, onDone, compact }: Props) {
       )}
 
       {kind === "team" && (
-        <input
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          placeholder="Team name (optional)"
-          aria-label="Team name (optional)"
-          maxLength={40}
-        />
+        <div className={compact ? undefined : "name-row"}>
+          <input
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+            placeholder="Team name (optional)"
+            aria-label="Team name (optional)"
+            maxLength={40}
+          />
+          {!compact && (
+            <button
+              type="button"
+              className="btn"
+              title="Pick a random team name"
+              aria-label="Pick a random team name"
+              onClick={() => setTeamName(uniqueFunnyTeamName([...takenNames, teamName]))}
+            >
+              🎲<span className="dice-label">Random</span>
+            </button>
+          )}
+        </div>
       )}
 
       {players.slice(0, count).map((p, i) => {

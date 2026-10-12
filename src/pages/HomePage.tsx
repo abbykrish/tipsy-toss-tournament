@@ -18,7 +18,6 @@ export function HomePage() {
         <p className="hero-meta">
           <span>Sat, Oct 17</span>
           <span>Starts at 3pm</span>
-          <span>Games to 11 this year</span>
           {hasStarted && (
             <Link href="/live" className="text-link">
               Live bracket →
@@ -36,20 +35,48 @@ export function HomePage() {
       <section id="signup" className="signup card">
         <div className="signup-intro">
           <h2>Sign up</h2>
-          <p>Got a partner? Sign up as a team. Flying solo? Sign up as a free agent and you'll get paired with someone.</p>
+          <p>
+            Got a partner? Sign up as a team.
+            <br />
+            Flying solo? Sign up as a free agent and you'll get paired with someone.
+          </p>
         </div>
         <div className="signup-details">
           <ul className="checklist">
             <li>Teams of 2</li>
             <li>One signup per phone number</li>
-            <li>Found a partner after signing up solo? Have them sign up the team with your number.</li>
+            <li>
+              Found a partner after signing up solo? Have them sign up the team with your number. It'll auto-add you to
+              their team.
+            </li>
           </ul>
           <p className="fine-print">
-            Phone numbers are only used to avoid duplicate signups and reach you on game day. They're never shown on the
-            site.
+            Phone numbers are only used to avoid duplicate signups. They're never shown on the site.
           </p>
         </div>
-        <SignupForm submit={api.signup} onDone={refresh} />
+        <SignupForm submit={api.signup} onDone={refresh} takenNames={state?.teams.map((t) => t.name)} />
+      </section>
+
+      <section className="whos-in">
+        <div className="section-head">
+          <h2>Who's in</h2>
+          {state && (
+            <p className="muted">
+              {state.teams.length} {state.teams.length === 1 ? "team" : "teams"}
+              {state.freeAgentCount > 0 &&
+                ` · ${state.freeAgentCount} free ${state.freeAgentCount === 1 ? "agent" : "agents"} looking for a partner`}
+            </p>
+          )}
+        </div>
+        {state && state.teams.length === 0 && <p className="empty">Nobody yet – be the first!</p>}
+        <ul className="team-chips">
+          {state?.teams.map((t) => (
+            <li key={t.id}>
+              <strong>{t.name}</strong>
+              <span>{t.players.map((p) => p.name).join(" & ")}</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="facts">
@@ -97,28 +124,6 @@ export function HomePage() {
             allowFullScreen
           />
         </div>
-      </section>
-
-      <section className="whos-in">
-        <div className="section-head">
-          <h2>Who's in</h2>
-          {state && (
-            <p className="muted">
-              {state.teams.length} {state.teams.length === 1 ? "team" : "teams"}
-              {state.freeAgentCount > 0 &&
-                ` · ${state.freeAgentCount} free ${state.freeAgentCount === 1 ? "agent" : "agents"} looking for a partner`}
-            </p>
-          )}
-        </div>
-        {state && state.teams.length === 0 && <p className="empty">Nobody yet – be the first!</p>}
-        <ul className="team-chips">
-          {state?.teams.map((t) => (
-            <li key={t.id}>
-              <strong>{t.name}</strong>
-              <span>{t.players.map((p) => p.name).join(" & ")}</span>
-            </li>
-          ))}
-        </ul>
       </section>
     </>
   );
