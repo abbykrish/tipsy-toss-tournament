@@ -89,7 +89,8 @@ export function HomePage() {
           <div className="fact-big">11</div>
           <h3>Shorter this year</h3>
           <p>
-            Every game is played to <strong>11 points</strong> instead of 21. Only the final goes the full 21.
+            Every game is played to <strong>11 points</strong> instead of 21, so the tournament moves faster this year.
+            Only the final goes the full 21.
           </p>
         </article>
         <article className="fact">
