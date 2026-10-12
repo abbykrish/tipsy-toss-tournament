@@ -57,6 +57,28 @@ export function HomePage() {
         <SignupForm submit={api.signup} onDone={refresh} />
       </section>
 
+      <section className="whos-in">
+        <div className="section-head">
+          <h2>Who's in</h2>
+          {state && (
+            <p className="muted">
+              {state.teams.length} {state.teams.length === 1 ? "team" : "teams"}
+              {state.freeAgentCount > 0 &&
+                ` · ${state.freeAgentCount} free ${state.freeAgentCount === 1 ? "agent" : "agents"} looking for a partner`}
+            </p>
+          )}
+        </div>
+        {state && state.teams.length === 0 && <p className="empty">Nobody yet – be the first!</p>}
+        <ul className="team-chips">
+          {state?.teams.map((t) => (
+            <li key={t.id}>
+              <strong>{t.name}</strong>
+              <span>{t.players.map((p) => p.name).join(" & ")}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="facts">
         <article className="fact">
           <div className="fact-big">3pm</div>
@@ -102,28 +124,6 @@ export function HomePage() {
             allowFullScreen
           />
         </div>
-      </section>
-
-      <section className="whos-in">
-        <div className="section-head">
-          <h2>Who's in</h2>
-          {state && (
-            <p className="muted">
-              {state.teams.length} {state.teams.length === 1 ? "team" : "teams"}
-              {state.freeAgentCount > 0 &&
-                ` · ${state.freeAgentCount} free ${state.freeAgentCount === 1 ? "agent" : "agents"} looking for a partner`}
-            </p>
-          )}
-        </div>
-        {state && state.teams.length === 0 && <p className="empty">Nobody yet – be the first!</p>}
-        <ul className="team-chips">
-          {state?.teams.map((t) => (
-            <li key={t.id}>
-              <strong>{t.name}</strong>
-              <span>{t.players.map((p) => p.name).join(" & ")}</span>
-            </li>
-          ))}
-        </ul>
       </section>
     </>
   );
