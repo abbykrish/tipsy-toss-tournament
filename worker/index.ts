@@ -26,7 +26,7 @@ import {
 import {
   availableTeamName,
   cleanName,
-  cleanPhone,
+  cleanOptionalPhone,
   cleanTeamName,
   createTeamStatements,
   defaultTeamName,
@@ -111,14 +111,9 @@ admin.patch("/players/:id", async (c) => {
   const id = idParam(c.req.param("id"));
   const body = await c.req.json<{ name?: string; phone?: string }>();
   const name = cleanName(body.name);
-  const phone = cleanPhone(body.phone, "That");
-  try {
-    const res = await c.env.DB.prepare("UPDATE players SET name = ?, phone = ? WHERE id = ?").bind(name, phone, id).run();
-    if (!res.meta.changes) throw new ApiError(404, "Player not found");
-  } catch (err) {
-    if (isUniqueViolation(err)) throw new ApiError(409, "Someone else already has that phone number");
-    throw err;
-  }
+  const phone = cleanOptionalPhone(body.phone);
+  const res = await c.env.DB.prepare("UPDATE players SET name = ?, phone = ? WHERE id = ?").bind(name, phone, id).run();
+  if (!res.meta.changes) throw new ApiError(404, "Player not found");
   return c.json({ ok: true });
 });
 

@@ -13,23 +13,21 @@ interface Props {
   takenNames?: string[];
 }
 
-const blank = { name: "", phone: "" };
 
 export function SignupForm({ submit, onDone, compact, takenNames = [] }: Props) {
   const [kind, setKind] = useState<Kind>("team");
   const [teamName, setTeamName] = useState("");
-  const [players, setPlayers] = useState([blank, blank]);
+  const [names, setNames] = useState(["", ""]);
   const [website, setWebsite] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const setPlayer = (i: number, field: "name" | "phone", value: string) =>
-    setPlayers((ps) => ps.map((p, j) => (j === i ? { ...p, [field]: value } : p)));
+  const setName = (i: number, value: string) => setNames((ns) => ns.map((n, j) => (j === i ? value : n)));
 
   const reset = () => {
     setTeamName("");
-    setPlayers([blank, blank]);
+    setNames(["", ""]);
     setSuccess(null);
     setError(null);
   };
@@ -62,12 +60,12 @@ export function SignupForm({ submit, onDone, compact, takenNames = [] }: Props) 
           const res = await submit({
             kind,
             teamName: kind === "team" ? teamName : undefined,
-            players: players.slice(0, count),
+            players: names.slice(0, count).map((name) => ({ name })),
             website,
           });
           if (compact) {
             setTeamName("");
-            setPlayers([blank, blank]);
+            setNames(["", ""]);
           }
           setSuccess(res.message);
           onDone?.();
@@ -114,31 +112,23 @@ export function SignupForm({ submit, onDone, compact, takenNames = [] }: Props) 
         </div>
       )}
 
-      {players.slice(0, count).map((p, i) => {
-        const who = compact ? `Player ${i + 1}` : i === 0 ? "Your" : "Partner's";
-        return (
-          <div key={i} className="player-row">
+      <div className={count === 2 ? "player-row" : undefined}>
+        {names.slice(0, count).map((name, i) => {
+          const who = compact ? `Player ${i + 1}` : i === 0 ? "Your" : "Partner's";
+          return (
             <input
+              key={i}
               required
-              value={p.name}
-              onChange={(e) => setPlayer(i, "name", e.target.value)}
+              value={name}
+              onChange={(e) => setName(i, e.target.value)}
               placeholder={`${who} name`}
               aria-label={`${who} name`}
               autoComplete={i === 0 && !compact ? "name" : "off"}
               maxLength={60}
             />
-            <input
-              required
-              type="tel"
-              value={p.phone}
-              onChange={(e) => setPlayer(i, "phone", e.target.value)}
-              placeholder={`${who} phone`}
-              aria-label={`${who} phone`}
-              autoComplete={i === 0 && !compact ? "tel" : "off"}
-            />
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       <label className="honeypot" aria-hidden>
         Website

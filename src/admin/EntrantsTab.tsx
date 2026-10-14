@@ -211,7 +211,7 @@ function PlayerLine({
         }}
       >
         <input value={name} onChange={(e) => setName(e.target.value)} aria-label="Name" maxLength={60} />
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} aria-label="Phone" type="tel" />
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} aria-label="Phone" placeholder="Phone (optional)" type="tel" />
         <button className="btn btn-sm btn-primary" disabled={busy}>
           Save
         </button>
