@@ -1,6 +1,6 @@
-import { formatPhone, normalizePhone } from "../shared/tournament";
+import { normalizePhone } from "../shared/tournament";
 import type { SignupRequest } from "../shared/types";
-import { ApiError, type PlayerRow } from "./db";
+import { ApiError } from "./db";
 
 const MAX_NAME = 60;
 const MAX_TEAM_NAME = 40;
@@ -12,9 +12,11 @@ export function cleanName(raw: unknown, label = "Name"): string {
   return name;
 }
 
-export function cleanPhone(raw: unknown, whose: string): string {
-  const phone = typeof raw === "string" ? normalizePhone(raw) : null;
-  if (!phone) throw new ApiError(400, `${whose} phone number doesn't look right`);
+/** Phone numbers are optional now; blank means none. */
+export function cleanOptionalPhone(raw: unknown): string | null {
+  if (typeof raw !== "string" || !raw.trim()) return null;
+  const phone = normalizePhone(raw);
+  if (!phone) throw new ApiError(400, "That phone number doesn't look right");
   return phone;
 }
 
@@ -52,7 +54,7 @@ export async function availableTeamName(db: D1Database, base: string): Promise<s
 export function createTeamStatements(
   db: D1Database,
   name: string,
-  members: ({ id: number } | { name: string; phone: string })[],
+  members: ({ id: number } | { name: string })[],
 ): D1PreparedStatement[] {
   const teamId = "(SELECT id FROM teams WHERE name = ?1 COLLATE NOCASE)";
   return [
@@ -60,7 +62,7 @@ export function createTeamStatements(
     ...members.map((m) =>
       "id" in m
         ? db.prepare(`UPDATE players SET team_id = ${teamId} WHERE id = ?2 AND team_id IS NULL`).bind(name, m.id)
-        : db.prepare(`INSERT INTO players (name, phone, team_id) VALUES (?2, ?3, ${teamId})`).bind(name, m.name, m.phone),
+        : db.prepare(`INSERT INTO players (name, team_id) VALUES (?2, ${teamId})`).bind(name, m.name),
     ),
     db
       .prepare(`INSERT INTO teams (name) SELECT NULL WHERE (SELECT COUNT(*) FROM players WHERE team_id = ${teamId}) != 2`)
@@ -77,9 +79,8 @@ export function isTeamSizeViolation(err: unknown): boolean {
 }
 
 /**
- * Signs up a team of two or a solo free agent. Entrants are deduped by phone
- * number: a free agent who's already signed up gets pulled onto the new team
- * instead of being duplicated, and nobody can be on two teams.
+ * Signs up a team of two or a solo free agent. There's no dedupe: if someone
+ * signs up twice, the host removes the extra entry from the admin page.
  */
 export async function register(db: D1Database, body: SignupRequest): Promise<{ message: string }> {
   const kind = body?.kind;
@@ -87,47 +88,13 @@ export async function register(db: D1Database, body: SignupRequest): Promise<{ m
   const raw = Array.isArray(body.players) ? body.players : [];
   if (raw.length !== (kind === "team" ? 2 : 1)) throw new ApiError(400, "Wrong number of players");
 
-  const people = raw.map((p, i) => {
-    const label = kind === "solo" ? "Your" : `Player ${i + 1}'s`;
-    return {
-      name: cleanName(p?.name, kind === "solo" ? "Your name" : `Player ${i + 1}'s name`),
-      phone: cleanPhone(p?.phone, label),
-    };
-  });
-
-  const phones = people.map((p) => p.phone);
-  if (new Set(phones).size !== phones.length) throw new ApiError(400, "Each teammate needs their own phone number");
-
-  const { results: existing } = await db
-    .prepare(`SELECT id, name, phone, team_id FROM players WHERE phone IN (${phones.map(() => "?").join(", ")})`)
-    .bind(...phones)
-    .all<PlayerRow>();
-  const byPhone = new Map(existing.map((p) => [p.phone, p]));
+  const people = raw.map((p, i) => ({
+    name: cleanName(p?.name, kind === "solo" ? "Your name" : `Player ${i + 1}'s name`),
+  }));
 
   if (kind === "solo") {
-    const already = byPhone.get(people[0].phone);
-    if (already) {
-      throw new ApiError(
-        409,
-        already.team_id === null
-          ? `${formatPhone(already.phone)} is already signed up as a free agent – you're all set!`
-          : `${formatPhone(already.phone)} is already on a team – you're all set!`,
-      );
-    }
-    try {
-      await db.prepare("INSERT INTO players (name, phone) VALUES (?, ?)").bind(people[0].name, people[0].phone).run();
-    } catch (err) {
-      if (isUniqueViolation(err)) throw new ApiError(409, "That phone number is already signed up");
-      throw err;
-    }
+    await db.prepare("INSERT INTO players (name) VALUES (?)").bind(people[0].name).run();
     return { message: `You're in, ${firstName(people[0].name)}! We'll pair you up with a partner before the tournament.` };
-  }
-
-  for (const p of people) {
-    const already = byPhone.get(p.phone);
-    if (already && already.team_id !== null) {
-      throw new ApiError(409, `${formatPhone(p.phone)} is already on a team. Text the host if you need to switch.`);
-    }
   }
 
   const requested = cleanTeamName(body.teamName);
@@ -137,10 +104,9 @@ export async function register(db: D1Database, body: SignupRequest): Promise<{ m
   const teamName = requested ?? (await availableTeamName(db, defaultTeamName(people[0].name, people[1].name)));
 
   try {
-    await db.batch(createTeamStatements(db, teamName, people.map((p) => byPhone.get(p.phone) ?? p)));
+    await db.batch(createTeamStatements(db, teamName, people));
   } catch (err) {
-    if (isUniqueViolation(err)) throw new ApiError(409, "Someone just grabbed that team name or phone number – try again");
-    if (isTeamSizeViolation(err)) throw new ApiError(409, "One of you just got paired up with someone else – try again");
+    if (isUniqueViolation(err)) throw new ApiError(409, "Someone just grabbed that team name – try again");
     throw err;
   }
   return { message: `${teamName} is in! See you on the lawn.` };

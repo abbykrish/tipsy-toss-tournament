@@ -19,7 +19,7 @@ interface TeamRow {
 export interface PlayerRow {
   id: number;
   name: string;
-  phone: string;
+  phone: string | null;
   team_id: number | null;
 }
 
@@ -83,7 +83,7 @@ export async function loadState(db: D1Database, includePrivate: boolean): Promis
   ]);
 
   const toPlayer = (p: PlayerRow): Player =>
-    includePrivate ? { id: p.id, name: p.name, phone: p.phone } : { id: p.id, name: p.name };
+    includePrivate && p.phone ? { id: p.id, name: p.name, phone: p.phone } : { id: p.id, name: p.name };
 
   const players = playerRows.results as unknown as PlayerRow[];
   const teams: Team[] = (teamRows.results as unknown as TeamRow[]).map((t) => ({

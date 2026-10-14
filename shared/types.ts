@@ -20,7 +20,7 @@ export interface Match {
 export interface Player {
   id: number;
   name: string;
-  /** Only present in admin responses. */
+  /** Only collected from older signups; only present in admin responses. */
   phone?: string;
 }
 
@@ -54,7 +54,6 @@ export interface TournamentState {
 
 export interface SignupPlayer {
   name: string;
-  phone: string;
 }
 
 export interface SignupRequest {

@@ -44,15 +44,8 @@ export function HomePage() {
         <div className="signup-details">
           <ul className="checklist">
             <li>Teams of 2</li>
-            <li>One signup per phone number</li>
-            <li>
-              Found a partner after signing up solo? Have them sign up the team with your number. It'll auto-add you to
-              their team.
-            </li>
+            <li>Found a partner after signing up solo? Just sign up again as a team.</li>
           </ul>
-          <p className="fine-print">
-            Phone numbers are only used to avoid duplicate signups. They're never shown on the site.
-          </p>
         </div>
         <SignupForm submit={api.signup} onDone={refresh} takenNames={state?.teams.map((t) => t.name)} />
       </section>
